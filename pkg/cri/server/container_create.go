@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/containerd/containerd/snapshots"
 	"path/filepath"
 	"time"
 
@@ -187,6 +188,11 @@ func (c *criService) CreateContainer(ctx context.Context, r *runtime.CreateConta
 	if err != nil {
 		return nil, err
 	}
+
+	// Add container name label to snapshot.
+	sOpts = append(sOpts, snapshots.WithLabels(map[string]string{
+		"containerd.io/snapshot/containerName": name,
+	}))
 
 	// Set snapshotter before any other options.
 	opts := []containerd.NewContainerOpts{
